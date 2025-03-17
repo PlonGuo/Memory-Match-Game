@@ -1,22 +1,43 @@
 # Memory Matching Game
 
-In this game, players can select two cards at a time. The goal is to find all matched pairs.
-The game would also show the **Time** and **Moves** that will record in the firestore. Players
-can see their own records and top 5 records.
+In this game, players can select two cards at a time. The goal is to find all matched pairs.  
+The game also shows the **Time** and **Moves**, which will be recorded in Firestore.  
 
-## If you want to run this game locally, do following steps:
-1. **Clone the project locally
-   Open your terminal, use `git clone`:
-   git clone git@github.com:PlonGuo/Memory-Match-Game.git
+## If you want to run this game locally, follow these steps:
 
-2. **enter the project folder
-   cd memory-match-game
+### 1\\. Clone the project locally
 
-3. **install dependencies
-   pnpm install
+Open your terminal and run:
 
-   If you have not installed `pnpm`, run following command:
-   npm install -g pnpm
+```bash
+git clone git@github.com:PlonGuo/Memory-Match-Game.git
+```
 
-4. ##running the game
-   pnpm run dev
+2. **Enter the project folder**
+
+```bash
+cd memory-match-game
+```
+
+3. **Install dependencies**
+
+If you're running the project for the first time, install the dependencies:
+
+```bash
+pnpm install
+```
+
+If you haven't installed pnpm yet, run:
+
+```bash
+npm install -g pnpm
+```
+
+4. **Run the game locally**
+
+```bash
+pnpm run dev
+```
+
+Your game should now be running locally. Enjoy!
+"""
