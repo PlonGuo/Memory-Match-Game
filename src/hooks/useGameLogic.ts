@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 const cardValues = ['🌟', '🎮', '🎨', '🎭', '🎪', '🎯', '🎲', '🎸'];
 
@@ -26,13 +26,14 @@ interface GameActions {
 }
 
 export const useGameLogic = (): [GameState, GameActions] => {
-  const [moves, setMoves] = useState(0);
   const [isGameRunning, setIsGameRunning] = useState(false);
   const [gameTime, setGameTime] = useState(0);
   const [cards, setCards] = useState<Card[]>([]);
   const [firstCard, setFirstCard] = useState<Card | null>(null);
   const [secondCard, setSecondCard] = useState<Card | null>(null);
   const [isChecking, setIsChecking] = useState(false);
+  const gameCompletedRef = useRef(false);
+  const [moves, setMoves] = useState(0);
 
   // Initialize game with shuffled cards
   const initializeGame = useCallback(() => {
@@ -49,6 +50,8 @@ export const useGameLogic = (): [GameState, GameActions] => {
     setFirstCard(null);
     setSecondCard(null);
     setIsChecking(false);
+    gameCompletedRef.current = false;
+    setMoves(0);
   }, []);
 
   useEffect(() => {
@@ -63,54 +66,67 @@ export const useGameLogic = (): [GameState, GameActions] => {
     setFirstCard(null);
     setSecondCard(null);
     setIsChecking(false);
+    gameCompletedRef.current = false;
     initializeGame();
   };
+
+  const handleGameComplete = useCallback((finalMoves: number) => {
+    if (!isGameRunning || gameCompletedRef.current) return;
+    gameCompletedRef.current = true;
+    setIsGameRunning(false);
+    alert(`Congratulations! You completed the game in ${gameTime} seconds with ${finalMoves} moves!`);
+  }, [isGameRunning, gameTime]);
 
   // Check if two cards match
   const checkForMatch = useCallback(() => {
     if (!firstCard || !secondCard) return;
 
     setIsChecking(true);
-    setMoves(prev => prev + 1); // add moves only when checking for match
-
-    const isMatch = firstCard.value === secondCard.value;
-    
-    if (isMatch) {
-      // Cards match - keep them flipped and mark as matched
-      setCards(prevCards => prevCards.map(card => 
-        card.id === firstCard.id || card.id === secondCard.id
-          ? { ...card, isMatched: true, isFlipped: true }
-          : card
-      ));
-
-      // Check if all cards are matched
-      const allMatched = cards.every(card => 
-        card.isMatched || card.id === firstCard.id || card.id === secondCard.id
-      );
+    setMoves(currentMoves => {
+      const newMoves = currentMoves + 1;
       
-      if (allMatched) {
-        handleGameComplete(moves);
-      }
+      const isMatch = firstCard.value === secondCard.value;
       
-      // Reset selected cards immediately for matched pairs
-      setFirstCard(null);
-      setSecondCard(null);
-      setIsChecking(false);
-    } else {
-      // Cards don't match - flip them back after 1.5 seconds
-      setTimeout(() => {
-        setCards(prevCards => prevCards.map(card => 
-          (card.id === firstCard.id || card.id === secondCard.id)
-            ? { ...card, isFlipped: false }
-            : card
-        ));
-        // Reset selected cards after flipping back
+      if (isMatch) {
+        // Cards match - keep them flipped and mark as matched
+        setCards(prevCards => {
+          const updatedCards = prevCards.map(card => 
+            card.id === firstCard.id || card.id === secondCard.id
+              ? { ...card, isMatched: true, isFlipped: true }
+              : card
+          );
+          
+          // Check if the game is complete after updating the card status
+          if (updatedCards.every(card => card.isMatched) && !gameCompletedRef.current) {
+            // Use the new moves value for game completion
+            handleGameComplete(newMoves);
+          }
+          
+          return updatedCards;
+        });
+
+        // Reset selected cards immediately for matched pairs
         setFirstCard(null);
         setSecondCard(null);
         setIsChecking(false);
-      }, 1500);
-    }
-  }, [firstCard, secondCard, cards, moves]);
+      } else {
+        // Cards don't match - flip them back after 1.5 seconds
+        setTimeout(() => {
+          setCards(prevCards => prevCards.map(card => 
+            (card.id === firstCard.id || card.id === secondCard.id)
+              ? { ...card, isFlipped: false }
+              : card
+          ));
+          // Reset selected cards after flipping back
+          setFirstCard(null);
+          setSecondCard(null);
+          setIsChecking(false);
+        }, 1500);
+      }
+      
+      return newMoves;
+    });
+  }, [firstCard, secondCard, handleGameComplete]);
 
   // Effect to check for matches when second card is selected
   useEffect(() => {
@@ -127,7 +143,7 @@ export const useGameLogic = (): [GameState, GameActions] => {
       isChecking ||
       (firstCard && secondCard) ||
       (firstCard && clickedCard.id === firstCard.id) ||
-      cards[clickedCard.id].isFlipped // Check the actual card state and not the incoming state
+      cards[clickedCard.id].isFlipped
     ) {
       return;
     }
@@ -144,11 +160,6 @@ export const useGameLogic = (): [GameState, GameActions] => {
     }
   };
 
-  const handleGameComplete = (finalMoves: number) => {
-    setIsGameRunning(false);
-    alert(`Congratulations! You completed the game in ${gameTime} seconds with ${finalMoves} moves!`);
-  };
-
   const handleStartGame = () => {
     if (isGameRunning) {
       resetGame();
@@ -156,6 +167,7 @@ export const useGameLogic = (): [GameState, GameActions] => {
       setMoves(0);
       setGameTime(0);
       setIsGameRunning(true);
+      gameCompletedRef.current = false;
       initializeGame();
     }
   };
@@ -171,4 +183,4 @@ export const useGameLogic = (): [GameState, GameActions] => {
       handleCardClick
     }
   ];
-}; 
+};

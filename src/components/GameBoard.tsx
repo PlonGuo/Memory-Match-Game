@@ -28,6 +28,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 }) => {
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [isLocked, setIsLocked] = useState(false);
+  const [moves, setMoves] = useState(0);
 
   const handleCardClick = (id: number) => {
     if (
@@ -51,6 +52,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
     // update the list of flipped cards
     const newFlippedCards = [...flippedCards, id];
     setFlippedCards(newFlippedCards);
+    
+    // increment moves
+    const newMoves = moves + 1;
+    setMoves(newMoves);
     onMove();
 
     if (newFlippedCards.length === 2) {
@@ -71,7 +76,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           card.isMatched || card.id === firstId || card.id === secondId
         );
         if (isGameComplete) {
-          onGameComplete(0);
+          onGameComplete(moves);
         }
       } else {
         // matching fails, flip back
