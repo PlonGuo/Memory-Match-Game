@@ -6,7 +6,10 @@ import {
   orderBy, 
   limit, 
   getDocs,
-  Timestamp 
+  Timestamp,
+  doc,
+  getDoc,
+  deleteDoc
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { GameRecord, UserStats, calculateScore } from '../types/game';
@@ -21,7 +24,7 @@ export const saveGameRecord = async (
 ) => {
   try {
     const score = calculateScore(time, moves);
-    const record: GameRecord = {
+    const record: Omit<GameRecord, 'id'> = {
       userId,
       userEmail,
       time,
@@ -52,11 +55,14 @@ export const getLeaderboard = async (): Promise<GameRecord[]> => {
     );
 
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      date: doc.data().date.toDate()
-    })) as GameRecord[];
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.date.toDate()
+      };
+    }) as GameRecord[];
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     return [];
@@ -133,5 +139,53 @@ export const getUserStats = async (userId: string): Promise<UserStats> => {
       bestMoves: 0,
       totalGames: 0
     };
+  }
+};
+
+export const getUserGameHistory = async (userId: string): Promise<GameRecord[]> => {
+  try {
+    // 先只按 userId 查询，获取到数据后在内存中排序
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where('userId', '==', userId)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const records = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.date.toDate()
+      };
+    }) as GameRecord[];
+
+    // 在内存中排序
+    return records.sort((a, b) => b.date.getTime() - a.date.getTime());
+  } catch (error) {
+    console.error('Error fetching game history:', error);
+    return [];
+  }
+};
+
+export const deleteGameRecord = async (recordId: string, userId: string) => {
+  try {
+    const docRef = doc(db, COLLECTION_NAME, recordId);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      throw new Error('Record not found');
+    }
+    
+    // 确保只能删除自己的记录
+    if (docSnap.data().userId !== userId) {
+      throw new Error('Unauthorized to delete this record');
+    }
+    
+    await deleteDoc(docRef);
+    return true;
+  } catch (error) {
+    console.error('Error deleting game record:', error);
+    return false;
   }
 }; 

@@ -8,6 +8,7 @@ A fun and interactive memory card matching game built with React and Firebase. T
 - Dark/Light theme support
 - Real-time leaderboard
 - Personal best score tracking
+- CRUD - the records will be created and updated automatically, user can view and delete their records through 'View Records' button.
 
 In this game, players can select two cards at a time. The goal is to find all matched pairs.  
 The game tracks both **Time** and **Moves**, which are recorded in Firestore to maintain high scores and statistics.

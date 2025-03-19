@@ -9,6 +9,7 @@ import { useGameLogic } from './hooks/useGameLogic';
 import { useTheme } from './hooks/useTheme';
 import { useAuth } from './hooks/useAuth';
 import { saveGameRecord } from './services/gameService';
+import GameHistory from './components/GameHistory';
 
 function App() {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -75,6 +76,10 @@ function App() {
             {user && <UserStats isDarkMode={isDarkMode} userId={user.uid} />}
             <LeaderBoard isDarkMode={isDarkMode} />
           </div>
+        </div>
+
+        <div className="mt-8">
+          <GameHistory userId={user?.uid || ''} />
         </div>
       </div>
     </div>

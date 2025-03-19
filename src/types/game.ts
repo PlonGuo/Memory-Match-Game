@@ -1,10 +1,10 @@
 export interface GameRecord {
-  id?: string;
+  id: string;
   userId: string;
   userEmail: string;
+  score: number;
   time: number;
   moves: number;
-  score: number;
   date: Date;
 }
 
