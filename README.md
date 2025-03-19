@@ -1,43 +1,34 @@
 # Memory Matching Game
 
+## 🎮 About The Project
+A fun and interactive memory card matching game built with React and Firebase. This project showcases modern web development practices including:
+- React Hooks for state management
+- Firebase Authentication for user management
+- Firestore for data persistence
+- Dark/Light theme support
+- Real-time leaderboard
+- Personal best score tracking
+
 In this game, players can select two cards at a time. The goal is to find all matched pairs.  
-The game also shows the **Time** and **Moves**, which will be recorded in Firestore.  
+The game tracks both **Time** and **Moves**, which are recorded in Firestore to maintain high scores and statistics.
 
-## If you want to run this game locally, follow these steps:
+## 🎥 Project Demo
+**[Watch Demo on YouTube](https://youtu.be/yOaV5KTdSDc)**
 
-### 1\\. Clone the project locally
+## 🌐 Live Demo
+**[Play the Game Now](https://memory-matching-game-145f8.web.app/)**
 
-Open your terminal and run:
+## ✨ Features
+- 🎯 Memory matching gameplay
+- 🌓 Dark/Light theme toggle
+- 👤 Google Authentication
+- 📊 Global leaderboard
+- 🏆 Personal best scores
+- ⏱️ Time and moves tracking
+- 📱 Responsive design
 
-```bash
-git clone git@github.com:PlonGuo/Memory-Match-Game.git
-```
-
-2. **Enter the project folder**
-
-```bash
-cd memory-match-game
-```
-
-3. **Install dependencies**
-
-If you're running the project for the first time, install the dependencies:
-
-```bash
-pnpm install
-```
-
-If you haven't installed pnpm yet, run:
-
-```bash
-npm install -g pnpm
-```
-
-4. **Run the game locally**
-
-```bash
-pnpm run dev
-```
-
-Your game should now be running locally. Enjoy!
-"""
+## 🛠️ Built With
+- React
+- TypeScript
+- Firebase (Authentication & Firestore)
+- Tailwind CSS
