@@ -15,6 +15,8 @@ The game tracks both **Time** and **Moves**, which are recorded in Firestore to 
 
 ## 🎥 Project Demo
 **[Watch Demo on YouTube](https://youtu.be/yOaV5KTdSDc)**
+**[Demonstration of FP in this project on YouTube](https://www.youtube.com/watch?v=I_8ycIOyqqc)**
+For the second video, please turn your volume up! I forgot to adjust to the correct microphone, sorry about that!
 
 ## 🌐 Live Demo
 **[Play the Game Now](https://memory-matching-game-145f8.web.app/)**
