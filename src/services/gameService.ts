@@ -23,12 +23,14 @@ export const saveGameRecord = async (
   moves: number
 ) => {
   try {
-    const score = calculateScore(time, moves);
+    // Since the front end of moves counts each flop, the actual number of moves is half that
+    const actualMoves = Math.floor(moves / 2);
+    const score = calculateScore(time, actualMoves);
     const record: Omit<GameRecord, 'id'> = {
       userId,
       userEmail,
       time,
-      moves,
+      moves: actualMoves, // Save actual number of moves
       score,
       date: new Date()
     };
@@ -46,7 +48,7 @@ export const saveGameRecord = async (
   }
 };
 
-export const getLeaderboard = async (): Promise<GameRecord[]> => {
+export const getLeaderboard = async () => {
   try {
     const q = query(
       collection(db, COLLECTION_NAME),
@@ -69,7 +71,7 @@ export const getLeaderboard = async (): Promise<GameRecord[]> => {
   }
 };
 
-export const getUserStats = async (userId: string): Promise<UserStats> => {
+export const getUserStats = async (userId: string) => {
   try {
     console.log('Fetching stats for userId:', userId);
 
@@ -142,9 +144,9 @@ export const getUserStats = async (userId: string): Promise<UserStats> => {
   }
 };
 
-export const getUserGameHistory = async (userId: string): Promise<GameRecord[]> => {
+export const getUserGameHistory = async (userId: string) => {
   try {
-    // 先只按 userId 查询，获取到数据后在内存中排序
+    // Query only by userId first, then sort in memory
     const q = query(
       collection(db, COLLECTION_NAME),
       where('userId', '==', userId)
@@ -160,7 +162,7 @@ export const getUserGameHistory = async (userId: string): Promise<GameRecord[]> 
       };
     }) as GameRecord[];
 
-    // 在内存中排序
+    // Sort records by date in descending order
     return records.sort((a, b) => b.date.getTime() - a.date.getTime());
   } catch (error) {
     console.error('Error fetching game history:', error);
@@ -177,7 +179,7 @@ export const deleteGameRecord = async (recordId: string, userId: string) => {
       throw new Error('Record not found');
     }
     
-    // 确保只能删除自己的记录
+    // Make sure user can only delete their own records
     if (docSnap.data().userId !== userId) {
       throw new Error('Unauthorized to delete this record');
     }

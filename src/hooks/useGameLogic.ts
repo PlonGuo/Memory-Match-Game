@@ -35,8 +35,9 @@ export const useGameLogic = (): [GameState, GameActions] => {
   const gameCompletedRef = useRef(false);
   const [moves, setMoves] = useState(0);
 
-  // Initialize game with shuffled cards
+  // Initialize all game data
   const initializeGame = useCallback(() => {
+    // Initialize cards
     const duplicatedValues = [...cardValues, ...cardValues];
     const shuffledCards = duplicatedValues
       .sort(() => Math.random() - 0.5)
@@ -46,29 +47,27 @@ export const useGameLogic = (): [GameState, GameActions] => {
         isFlipped: false,
         isMatched: false,
       }));
+
+    // Reset all game states
     setCards(shuffledCards);
     setFirstCard(null);
     setSecondCard(null);
     setIsChecking(false);
     gameCompletedRef.current = false;
     setMoves(0);
+    setGameTime(0);
   }, []);
 
+  // Initial game setup when component mounts
   useEffect(() => {
     initializeGame();
   }, [initializeGame]);
 
-  // Reset game state
-  const resetGame = () => {
+  // Reset game - stop current game and initialize new game data
+  const resetGame = useCallback(() => {
     setIsGameRunning(false);
-    setMoves(0);
-    setGameTime(0);
-    setFirstCard(null);
-    setSecondCard(null);
-    setIsChecking(false);
-    gameCompletedRef.current = false;
     initializeGame();
-  };
+  }, [initializeGame]);
 
   const handleGameComplete = useCallback((finalMoves: number) => {
     if (!isGameRunning || gameCompletedRef.current) return;
@@ -160,17 +159,15 @@ export const useGameLogic = (): [GameState, GameActions] => {
     }
   };
 
-  const handleStartGame = () => {
+  // Start a new game
+  const handleStartGame = useCallback(() => {
     if (isGameRunning) {
-      resetGame();
+      resetGame();  // If game is running, reset it first
     } else {
-      setMoves(0);
-      setGameTime(0);
-      setIsGameRunning(true);
-      gameCompletedRef.current = false;
-      initializeGame();
+      initializeGame();  // Initialize new game data
+      setIsGameRunning(true);  // Then start the game
     }
-  };
+  }, [isGameRunning, resetGame, initializeGame]);
 
   return [
     { moves, isGameRunning, gameTime, cards },
